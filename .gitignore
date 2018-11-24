@@ -1,0 +1,15 @@
+# Ignore everything 
+/*
+
+# and /app/build
+/app/build/
+/app/release/
+
+**/*.iml
+
+# Except for this
+!/app/
+!build.gradle
+!settings.gradle
+!.gitignore
+
