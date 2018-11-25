@@ -19,7 +19,7 @@ data class PhotosResponse(
         @SerializedName("photo")
         val photo: List<Photo>,
         @SerializedName("total")
-        val total: String
+        val total: Int
     )
 
     data class Photo(

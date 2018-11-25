@@ -60,4 +60,12 @@
         tools:layoutManager="android.support.v7.widget.GridLayoutManager"
         tools:listitem="@layout/item_photo"
         tools:spanCount="2"/>
+
+    <ProgressBar
+        android:id="@+id/progress"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_gravity="center"
+        android:visibility="gone"
+        tools:visibility="visible"/>
 </android.support.design.widget.CoordinatorLayout>

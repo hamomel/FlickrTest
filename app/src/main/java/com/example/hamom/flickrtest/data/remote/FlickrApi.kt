@@ -10,8 +10,10 @@ interface FlickrApi {
     @GET("?method=flickr.photos.search&nojsoncallback=1&format=json")
     fun searchPhotos(
         @Query("api_key") apiKey: String,
-        @Query("text") text: String): Observable<PhotosResponse>
+        @Query("text") text: String,
+        @Query("page") page: Int): Observable<PhotosResponse>
 
     @GET("?method=flickr.photos.getRecent&nojsoncallback=1&format=json")
-    fun getRecentPhotos(@Query("api_key") apiKey: String): Observable<PhotosResponse>
+    fun getRecentPhotos(@Query("api_key") apiKey: String,
+                        @Query("page") page: Int): Observable<PhotosResponse>
 }

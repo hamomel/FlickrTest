@@ -4,6 +4,9 @@ import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.v7.widget.GridLayoutManager
+import android.support.v7.widget.RecyclerView
+import android.util.Log
+import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.ArrayAdapter
 import com.example.hamom.flickrtest.R
@@ -17,6 +20,10 @@ import org.koin.android.viewmodel.ext.android.viewModel
 
 class MainActivity : AppCompatActivity() {
 
+    companion object {
+        private const val PAGE_LOAD_TRESHOLD = 30
+        private val TAG = MainActivity::class.java.name
+    }
     private val mainScheduler: Scheduler by inject(MAIN)
     private val viewModel: MainViewModel by viewModel()
     private val disposable = CompositeDisposable()
@@ -48,6 +55,21 @@ class MainActivity : AppCompatActivity() {
                 else -> false
             }
         }
+
+        recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                if (dy > 0) {
+                    (recyclerView.layoutManager as? GridLayoutManager)
+                            ?.findLastVisibleItemPosition()?.let {
+                               if (it > adapter.itemCount - PAGE_LOAD_TRESHOLD) {
+                                   Log.d(TAG, " last visible pos: $it")
+                                   viewModel.loadNextPage(adapter.lastPage + 1)
+                               }
+                            }
+                }
+            }
+        })
     }
 
     private fun showError(error: Throwable?) {
@@ -58,10 +80,17 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun renderData(data: MainViewData) {
-        adapter.photos = data.photos
+        if (data.photos.page == 0) {
+            adapter.reset()
+        } else {
+            adapter.addData(data.photos.photo, data.photos.page)
+        }
         searchVeiw.setAdapter(ArrayAdapter(this,
                 android.R.layout.simple_expandable_list_item_1,
                 data.searchPhrases.toTypedArray()))
+
+        progress.visibility =
+                if (data.isLoading && adapter.itemCount == 0) View.VISIBLE else View.GONE
     }
 
     private fun search() {

@@ -32,8 +32,11 @@ class LocalStorageImpl(context: Context) : LocalStorage {
                     }
 
     override fun saveSearchPhrase(phrase: String) {
-        val set = preferences.getStringSet(SEARCH_PHRASES, mutableSetOf())
-        set.add(phrase)
-        preferences.edit().putStringSet(SEARCH_PHRASES, set).apply()
+        mutableSetOf(phrase).let {
+            it.apply {
+                addAll(preferences.getStringSet(SEARCH_PHRASES, mutableSetOf()))
+            }
+            preferences.edit().putStringSet(SEARCH_PHRASES, it).apply()
+        }
     }
 }

@@ -13,13 +13,13 @@ class PhotosRepository(
         private val photosResponseMapper: PhotosResponseMapper
 ) {
 
-    fun searchPhotos(text: String): Observable<Photos> =
-            flickrApi.searchPhotos(API_KEY, text)
+    fun searchPhotos(text: String, pageNumber: Int): Observable<Photos> =
+            flickrApi.searchPhotos(API_KEY, text, pageNumber)
                     .doOnSubscribe { localStorage.saveSearchPhrase(text) }
                     .map(photosResponseMapper::map)
 
-    fun getRecentPhotos(): Observable<Photos> =
-            flickrApi.getRecentPhotos(API_KEY)
+    fun getRecentPhotos(pageNumber: Int): Observable<Photos> =
+            flickrApi.getRecentPhotos(API_KEY, pageNumber)
                     .map(photosResponseMapper::map)
 
     fun getSearchPhrases() = localStorage.getSearchPhrases()

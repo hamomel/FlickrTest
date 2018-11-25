@@ -1,32 +1,33 @@
 package com.example.hamom.flickrtest.presentation
 
-import android.content.Context
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.example.hamom.flickrtest.R
-import com.example.hamom.flickrtest.data.local.model.Photos
+import com.example.hamom.flickrtest.data.local.model.Photos.Photo
 import com.squareup.picasso.Picasso
 import kotlinx.android.extensions.LayoutContainer
 import kotlinx.android.synthetic.main.item_photo.*
 
-class PhotosAdapter(val itemClickListener: (Photos.Photo) -> Unit) :
+class PhotosAdapter(val itemClickListener: (Photo) -> Unit) :
     RecyclerView.Adapter<PhotosAdapter.PhotoViewHolder>() {
 
-    private lateinit var conext: Context
+    private var photos: MutableList<Photo> = mutableListOf()
+    var lastPage = 0
+        private set
 
-    var photos: List<Photos.Photo> = emptyList()
-        set(value) {
-            if (value != field) {
-                field = value
-                notifyDataSetChanged()
-            }
-        }
+    fun addData(data: List<Photo>, page: Int) {
+        if (page <= lastPage) return
+        lastPage = page
+        photos.addAll(data)
+        notifyDataSetChanged()
+    }
 
-    override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
-        super.onAttachedToRecyclerView(recyclerView)
-        conext = recyclerView.context
+    fun reset() {
+        photos = mutableListOf()
+        lastPage = 0
+        notifyDataSetChanged()
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, itemType: Int): PhotoViewHolder =
@@ -49,7 +50,7 @@ class PhotosAdapter(val itemClickListener: (Photos.Photo) -> Unit) :
                     }
         }
 
-        fun bind(photo: Photos.Photo, itemClickListener: (Photos.Photo) -> Unit) {
+        fun bind(photo: Photo, itemClickListener: (Photo) -> Unit) {
             Picasso.get()
                 .load(photo.url)
                 .fit()
