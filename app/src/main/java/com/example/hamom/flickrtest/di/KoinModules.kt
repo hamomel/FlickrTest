@@ -7,6 +7,7 @@ import com.example.hamom.flickrtest.data.local.LocalStorage
 import com.example.hamom.flickrtest.data.local.LocalStorageImpl
 import com.example.hamom.flickrtest.data.local.LocalStorageImpl.Companion.SEARCH_PREFS
 import com.example.hamom.flickrtest.data.remote.FlickrApi
+import com.example.hamom.flickrtest.data.remote.interceptor.ApiKeyInterceptor
 import com.example.hamom.flickrtest.data.remote.model.PhotosResponseMapper
 import com.example.hamom.flickrtest.presentation.MainViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -48,5 +49,6 @@ private fun getRetrofit(client: OkHttpClient) =
 
 private fun getOkHttpClient() =
         OkHttpClient.Builder()
+            .addInterceptor(ApiKeyInterceptor())
             .addInterceptor(HttpLoggingInterceptor().apply { level = HttpLoggingInterceptor.Level.BODY })
             .build()

@@ -6,7 +6,9 @@ data class PhotosResponse(
     @SerializedName("photos")
     val photos: Photos,
     @SerializedName("stat")
-    val stat: String
+    val stat: String,
+    @SerializedName("message")
+    val message: String
 ) {
 
     data class Photos(

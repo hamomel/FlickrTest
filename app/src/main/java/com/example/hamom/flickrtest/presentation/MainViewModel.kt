@@ -14,9 +14,13 @@ import io.reactivex.subjects.PublishSubject
 
 class MainViewModel(private val repository: PhotosRepository, private val bgScheduler: Scheduler) : ViewModel() {
 
+    companion object {
+        private val TAG = MainViewModel::class.java.name
+    }
+
     private val dataProcessor = BehaviorProcessor.create<MainViewData>()
     private val errorSubject = PublishSubject.create<Throwable>()
-    private val paginator = BehaviorProcessor.create<Pair<String, Int>>()
+    private val loader = BehaviorProcessor.create<Pair<String, Int>>()
     private val disposable: CompositeDisposable = CompositeDisposable()
 
     init {
@@ -28,7 +32,7 @@ class MainViewModel(private val repository: PhotosRepository, private val bgSche
                                 { errorSubject.onNext(it) }))
 
         disposable.add(
-                paginator.startWith("" to 1)
+                loader.startWith("" to 1)
                         .concatMap { loadPhotos(it.first, it.second) }
                         .subscribe(
                                 { photos -> mutateData { it.copy(photos = photos, isLoading = false) } },
@@ -39,12 +43,34 @@ class MainViewModel(private val repository: PhotosRepository, private val bgSche
 
     fun getErrors(): Observable<Throwable> = errorSubject
 
+    fun searchPhotos(text: String) {
+        loader.apply {
+            text.takeIf { it != value?.first }
+                ?.let {
+                    mutateData { it.copy(photos = Photos()) }
+                    onNext(text to 1)
+                }
+        }
+    }
+
+    fun loadNextPage(requestedPage: Int) {
+        dataProcessor.value?.run {
+            if (!isLoading
+                && requestedPage <= photos.pages
+                && requestedPage > loader.value?.second ?: 0) {
+
+                Log.d(TAG, "curent page: ${photos.page}, requested page: ${requestedPage}")
+                loader.onNext((loader.value?.first ?: "") to requestedPage)
+            }
+        }
+    }
+
     private fun loadPhotos(text: String, pageNumger: Int): Flowable<Photos> =
             if (text.isBlank()) {
                 repository.getRecentPhotos(pageNumger)
             } else {
                 repository.searchPhotos(text, pageNumger)
-            }.doOnSubscribe { mutateData { it.copy(isLoading = true, searchPhrase = text) } }
+            }.doOnSubscribe { mutateData { it.copy(isLoading = true) } }
                     .toFlowable(BackpressureStrategy.BUFFER)
                     .subscribeOn(bgScheduler)
 
@@ -54,29 +80,6 @@ class MainViewModel(private val repository: PhotosRepository, private val bgSche
                 dataProcessor.value?.let {
                     mutation(it)
                 } ?: mutation(MainViewData()))
-    }
-
-    fun searchPhotos(text: String) {
-        if (text != dataProcessor.value?.searchPhrase) {
-            mutateData { it.copy(photos = Photos()) }
-        }
-        paginator.apply {
-            text.takeIf { it != value?.first }
-                    ?.let {
-                        onNext(text to 1)
-                    }
-        }
-    }
-
-    fun loadNextPage(requestedPage: Int) {
-        dataProcessor.value?.run {
-            if (!isLoading
-                    && requestedPage <= photos.total / photos.pageSize
-                    && requestedPage > paginator.value?.second ?: 0) {
-                Log.d(MainViewModel::class.java.name, "curent page: ${photos.page}, load page: ${photos.page + 1}")
-                paginator.onNext(searchPhrase to requestedPage)
-            }
-        }
     }
 
     override fun onCleared() {
