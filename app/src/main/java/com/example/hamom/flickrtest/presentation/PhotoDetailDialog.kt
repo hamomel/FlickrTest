@@ -42,7 +42,7 @@ class PhotoDetailDialog : DialogFragment() {
                 .placeholder(R.drawable.photo_placeholder)
                 .into(photoView)
 
-        photo.description.takeIf { it.isNotBlank() }?.let {
+        photo.title.takeIf { it.isNotBlank() }?.let {
             titleView.text = it
         } ?: let { titleView.visibility = View.GONE }
 

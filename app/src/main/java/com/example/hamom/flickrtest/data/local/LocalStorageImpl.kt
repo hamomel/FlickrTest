@@ -4,15 +4,12 @@ import android.content.Context
 import android.content.SharedPreferences
 import io.reactivex.Observable
 
-class LocalStorageImpl(context: Context) : LocalStorage {
+class LocalStorageImpl(private val preferences: SharedPreferences) : LocalStorage {
 
     companion object {
-        private const val SEARCH_PREFS = "SEARCH_PREFS"
+        const val SEARCH_PREFS = "SEARCH_PREFS"
         private const val SEARCH_PHRASES = "SEARCH_PHRASES"
     }
-
-    private val preferences: SharedPreferences =
-            context.getSharedPreferences(SEARCH_PREFS, Context.MODE_PRIVATE)
 
     private val changesListener: Observable<String> = Observable.create { emitter ->
         val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->

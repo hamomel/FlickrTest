@@ -1,9 +1,11 @@
 package com.example.hamom.flickrtest.di
 
+import android.content.Context
 import com.example.hamom.flickrtest.BASE_URL
 import com.example.hamom.flickrtest.data.PhotosRepository
 import com.example.hamom.flickrtest.data.local.LocalStorage
 import com.example.hamom.flickrtest.data.local.LocalStorageImpl
+import com.example.hamom.flickrtest.data.local.LocalStorageImpl.Companion.SEARCH_PREFS
 import com.example.hamom.flickrtest.data.remote.FlickrApi
 import com.example.hamom.flickrtest.data.remote.model.PhotosResponseMapper
 import com.example.hamom.flickrtest.presentation.MainViewModel
@@ -24,6 +26,7 @@ val appModule = module {
     single { getOkHttpClient() }
     single { getRetrofit(get()) }
     single { get<Retrofit>().create(FlickrApi::class.java)  }
+    single { get<Context>().getSharedPreferences(SEARCH_PREFS, Context.MODE_PRIVATE) }
     single<LocalStorage> { LocalStorageImpl(get()) }
     single { PhotosResponseMapper() }
     single { PhotosRepository(get(), get(), get()) }

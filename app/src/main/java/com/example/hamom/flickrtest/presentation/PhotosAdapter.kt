@@ -58,10 +58,10 @@ class PhotosAdapter(val itemClickListener: (Photo) -> Unit) :
                 .placeholder(R.drawable.photo_placeholder)
                 .into(photoView)
 
-            if (photo.description.isNullOrBlank()) {
+            if (photo.title.isNullOrBlank()) {
                 titleView.visibility = View.GONE
             } else {
-                titleView.text = photo.description
+                titleView.text = photo.title
             }
 
             itemView.setOnClickListener { itemClickListener(photo) }
